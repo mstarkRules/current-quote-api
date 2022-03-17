@@ -1,6 +1,8 @@
 import express from "express";
+const cors = require("cors");
 
-export const app = express();
+const app = express();
+app.use(cors());
 
 app.get("/", (req, res) => {
   res.json({ msg: "all right" });

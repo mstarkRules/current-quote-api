@@ -1,8 +1,6 @@
 import express from "express";
 
-const app = express();
-
-const PORT = process.env.PORT || 8877;
+export const app = express();
 
 app.get("/", (req, res) => {
   res.json({ msg: "all right" });
@@ -24,6 +22,8 @@ app.get("/contact", (req, res) => {
     ],
   });
 });
+
+const PORT = process.env.PORT || 8877;
 
 app.listen(PORT, () => {
   console.log("listening port: " + PORT);

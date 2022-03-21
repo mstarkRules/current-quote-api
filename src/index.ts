@@ -1,14 +1,32 @@
 import express from "express";
+import { getCurrent } from "./services/getCurrentQuote";
+import { monitorQuote } from "./services/monitorQuote";
 const cors = require("cors");
 
 const app = express();
 app.use(cors());
 
+monitorQuote({ sourceCurrency: "BTC", targetCurrency: "BRL" });
+
+const getCurrentQuote = app.get(
+  `/current/:source-:target`,
+  async (req, res) => {
+    const requestCurrent = await getCurrent({
+      sourceCurrency: req.params.source,
+      targetCurrency: req.params.target,
+    });
+
+    res.json({
+      ...requestCurrent,
+    });
+  }
+);
+
 app.get("/", (req, res) => {
   res.json({ msg: "all right" });
 });
 
-app.get("/contact", (req, res) => {
+const getContact = app.get("/contact", (req, res) => {
   res.json({
     name: "mstark",
     website: "https://mpamorim.dev.br/",

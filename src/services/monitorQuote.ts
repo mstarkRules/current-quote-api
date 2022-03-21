@@ -61,7 +61,7 @@ export async function monitorQuote(currency: CurrencyProps) {
   });
   let purchasedValue = parseFloat(purchasedData?.bid);
 
-  const perc = 0.01;
+  const perc = 7;
   setInterval(async () => {
     // const discord = await sendNotification();
     let currencyQuote = await getCurrent({
@@ -100,11 +100,11 @@ export async function monitorQuote(currency: CurrencyProps) {
           "/" +
           year +
           " às " +
-          createdAtFormated
+          createdAtFormated.padStart(2, "0")
       );
     }
 
     console.log("valorizou os " + perc + "%? ", verify);
     console.log("atualizado em: " + createdAtFormated);
-  }, 1000 * 10);
+  }, 1000 * 20);
 }

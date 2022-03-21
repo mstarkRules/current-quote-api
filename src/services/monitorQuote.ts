@@ -11,7 +11,6 @@ const not = axios.create();
 async function sendNotification(message: string) {
   let url = process.env.DISCORD_WEBHOOK_URL;
 
-  console.log("url do discord: ", url);
   let my_data = {
     content: message,
   };
@@ -45,13 +44,21 @@ async function verifyParams(
   console.log("valore comprado: ", purchasedValue);
   console.log("valor da cotação atual: ", currencyValue);
   console.log("valor da porcentagem + valor comprado: ", sum);
-  if (currencyValue >= percAmount + purchasedValue) {
+
+  //checks if the purshased amount added to the percentage variation
+  //  is greater than desired percentage
+  // if (currencyValue >= percAmount + purchasedValue) {
+  //   return currentPerc;
+  // }
+
+  //return the percentage for each [x percentage - must be greater than 0] of variation
+  if (Math.trunc(currentPerc) !== 0 && Math.trunc(currentPerc) % perc == 0) {
     return currentPerc;
   }
 
   return false;
 }
-
+let last: any;
 export async function monitorQuote(currency: CurrencyProps) {
   const purchasedData = await getCurrent({
     sourceCurrency: currency.sourceCurrency,
@@ -59,9 +66,8 @@ export async function monitorQuote(currency: CurrencyProps) {
   });
   let purchasedValue = parseFloat(purchasedData?.bid);
 
-  const perc = 7;
+  const perc = 1;
   setInterval(async () => {
-    // const discord = await sendNotification();
     let currencyQuote = await getCurrent({
       sourceCurrency: currency.sourceCurrency,
       targetCurrency: currency.targetCurrency,
@@ -87,19 +93,27 @@ export async function monitorQuote(currency: CurrencyProps) {
       String(seconds).padStart(2, "0");
 
     const verify = await verifyParams(currencyValue, perc, purchasedValue);
+
+    //checks if desired percentage variation has been reached and sends a single notification
     if (verify) {
-      const discordMessage = await sendNotification(
-        "Sua moeda valorizou " +
-          verify.toFixed(2) +
-          "%. Atualizado em: " +
-          day +
-          "/" +
-          month +
-          "/" +
-          year +
-          " às " +
-          createdAtFormated.padStart(2, "0")
-      );
+      if (Math.trunc(verify) !== Math.trunc(last)) {
+        const discordMessage = await sendNotification(
+          "Sua moeda valorizou " +
+            verify.toFixed(2) +
+            "%. Atualizado em: " +
+            day +
+            "/" +
+            month +
+            "/" +
+            year +
+            " às " +
+            createdAtFormated.padStart(2, "0")
+        );
+      }
+
+      last = verify;
+
+      console.log("porcentagem nova: ", last);
     }
 
     console.log("valorizou os " + perc + "%? ", verify);

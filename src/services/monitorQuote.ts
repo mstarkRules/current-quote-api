@@ -1,21 +1,18 @@
 import { getCurrent } from "./getCurrentQuote";
 import axios from "axios";
-import { json } from "stream/consumers";
+require("dotenv/config");
 
 interface CurrencyProps {
   sourceCurrency: string;
   targetCurrency: string;
 }
-const not = axios.create({
-  baseURL: "https://discord.com/",
-});
+const not = axios.create();
 
 async function sendNotification(message: string) {
-  let url =
-    "api/webhooks/955225960913977365/lYUlOheMUSeEDl5Oki9IhRftPvCE7YXWQvs45Q0kTO5e_JxZqPukfIW-PyyFY85x-DQh";
+  let url = process.env.DISCORD_WEBHOOK_URL;
 
+  console.log("url do discord: ", url);
   let my_data = {
-    msg: "alooo",
     content: message,
   };
 
@@ -71,6 +68,8 @@ export async function monitorQuote(currency: CurrencyProps) {
       sourceCurrency: currency.sourceCurrency,
       targetCurrency: currency.targetCurrency,
     });
+
+    //get cthe current currency quote
     let currencyValue = parseFloat(currencyQuote?.bid);
     let timestampToDate = new Date(currencyQuote?.timestamp * 1000);
 
@@ -83,7 +82,11 @@ export async function monitorQuote(currency: CurrencyProps) {
     let seconds = timestampToDate.getSeconds();
 
     let createdAtFormated =
-      hours + ":" + minutes + ":" + String(seconds).padStart(2, "0");
+      hours +
+      ":" +
+      String(minutes).padStart(2, "0") +
+      ":" +
+      String(seconds).padStart(2, "0");
 
     const verify = await verifyParams(currencyValue, perc, purchasedValue);
     if (verify) {
@@ -96,7 +99,7 @@ export async function monitorQuote(currency: CurrencyProps) {
           month +
           "/" +
           year +
-          "às" +
+          " às " +
           createdAtFormated
       );
     }

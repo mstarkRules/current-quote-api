@@ -23,10 +23,8 @@ async function sendNotification(message: string) {
       data: my_data,
       headers: { "Content-Type": "application/json" },
     });
-
-    // console.log("resposta do discord: ", disc);
   } catch (error) {
-    console.log("erro do discord: ", error);
+    console.log("discord error: ", error);
   }
 }
 

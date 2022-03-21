@@ -1,4 +1,5 @@
 import express from "express";
+import { callSelf } from "./services/callSelfApi";
 import { getCurrent } from "./services/getCurrentQuote";
 import { monitorQuote } from "./services/monitorQuote";
 const cors = require("cors");
@@ -7,6 +8,8 @@ const app = express();
 app.use(cors());
 
 monitorQuote({ sourceCurrency: "BTC", targetCurrency: "BRL" });
+
+callSelf();
 
 const getCurrentQuote = app.get(
   `/current/:source-:target`,

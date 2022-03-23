@@ -94,13 +94,21 @@ export async function monitorQuote(currency: CurrencyProps) {
 
     const verify = await verifyParams(currencyValue, perc, purchasedValue);
 
+    let isAppreciating = currencyValue > purchasedValue;
+
     //checks if desired percentage variation has been reached and sends a single notification
     if (verify) {
       if (Math.trunc(verify) !== Math.trunc(last)) {
         const discordMessage = await sendNotification(
-          "Sua moeda valorizou " +
+          `Sua moeda ("+ currencyQuote?.sourceCurrency+") ${
+            isAppreciating ? "valorizou" : "desvalorizou "
+          } ` +
             verify.toFixed(2) +
-            "%. Atualizado em: " +
+            "%. Valor atual, em " +
+            currencyQuote?.targetCurrency +
+            ", de: " +
+            currencyValue +
+            ". Atualizado em: " +
             day +
             "/" +
             month +
@@ -111,6 +119,7 @@ export async function monitorQuote(currency: CurrencyProps) {
         );
       }
 
+      //update last value with the new percentage value
       last = verify;
 
       console.log("porcentagem nova: ", last);

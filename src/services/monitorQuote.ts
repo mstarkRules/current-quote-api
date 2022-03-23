@@ -5,9 +5,11 @@ require("dotenv/config");
 interface CurrencyProps {
   sourceCurrency: string;
   targetCurrency: string;
+  perc: number;
 }
-const not = axios.create();
+const notificationFetch = axios.create();
 
+//function to send discord notification
 async function sendNotification(message: string) {
   let url = process.env.DISCORD_WEBHOOK_URL;
 
@@ -16,7 +18,7 @@ async function sendNotification(message: string) {
   };
 
   try {
-    const disc = await not({
+    const disc = await notificationFetch({
       url: url,
       method: "POST",
       data: my_data,
@@ -27,6 +29,7 @@ async function sendNotification(message: string) {
   }
 }
 
+//checks if params sent corresponds to the current quote
 async function verifyParams(
   currencyValue: number,
   perc: number,
@@ -58,22 +61,29 @@ async function verifyParams(
 
   return false;
 }
+//variable that will store the last value of percentage variation
 let last: any;
+export var purchasedData: any;
+
 export async function monitorQuote(currency: CurrencyProps) {
-  const purchasedData = await getCurrent({
+  purchasedData = await getCurrent({
     sourceCurrency: currency.sourceCurrency,
     targetCurrency: currency.targetCurrency,
   });
+
   let purchasedValue = parseFloat(purchasedData?.bid);
 
-  const perc = 1;
+  //interval of percentage to check variation
+  const perc = currency.perc;
+
+  //get currency quote each interval
   setInterval(async () => {
     let currencyQuote = await getCurrent({
       sourceCurrency: currency.sourceCurrency,
       targetCurrency: currency.targetCurrency,
     });
 
-    //get cthe current currency quote
+    //get the current currency quote
     let currencyValue = parseFloat(currencyQuote?.bid);
     let timestampToDate = new Date(currencyQuote?.timestamp * 1000);
 
@@ -100,7 +110,7 @@ export async function monitorQuote(currency: CurrencyProps) {
     if (verify) {
       if (Math.trunc(verify) !== Math.trunc(last)) {
         const discordMessage = await sendNotification(
-          `Sua moeda ("+ currencyQuote?.sourceCurrency+") ${
+          `Sua moeda (+ % ${currencyQuote?.sourceCurrency}) ${
             isAppreciating ? "valorizou" : "desvalorizou "
           } ` +
             verify.toFixed(2) +
@@ -128,4 +138,5 @@ export async function monitorQuote(currency: CurrencyProps) {
     console.log("valorizou os " + perc + "%? ", verify);
     console.log("atualizado em: " + createdAtFormated);
   }, 1000 * 20);
+  return purchasedValue;
 }

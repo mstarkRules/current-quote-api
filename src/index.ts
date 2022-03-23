@@ -1,15 +1,48 @@
 import express from "express";
 import { callSelf } from "./services/callSelfApi";
+import { getCurrentPercVariation } from "./services/getCurrentPercVariation";
 import { getCurrent } from "./services/getCurrentQuote";
-import { monitorQuote } from "./services/monitorQuote";
+import { monitorQuote, purchasedData } from "./services/monitorQuote";
 const cors = require("cors");
 
 const app = express();
 app.use(cors());
 
-monitorQuote({ sourceCurrency: "BTC", targetCurrency: "BRL" });
+async function getMonitorQuote(perc: number) {
+  const testing = await monitorQuote({
+    sourceCurrency: "BTC",
+    targetCurrency: "BRL",
+    perc: perc,
+  });
 
-callSelf();
+  console.log("veio o valor comprado: ", testing);
+}
+
+//route to set percentage to monitore
+const createQuoteMonitoring = app.get(`/create/:perc`, (req, res) => {
+  getMonitorQuote(parseFloat(req.params.perc));
+});
+
+const getCurrentVariation = app.get("/variation", async (req, res) => {
+  const purchased = purchasedData;
+  const requestCurrent = await getCurrent({
+    sourceCurrency: purchased.sourceCurrency,
+    targetCurrency: purchased.targetCurrency,
+  });
+
+  const variation = await getCurrentPercVariation({
+    currencyValue: requestCurrent?.bid,
+    purchasedValue: purchased.bid,
+  });
+
+  res.json({
+    purchasedValue: purchased.bid,
+    currentValue: requestCurrent?.bid,
+    variation: variation,
+  });
+
+  console.log("olha a variação: ", variation);
+});
 
 const getCurrentQuote = app.get(
   `/current/:source-:target`,
@@ -46,6 +79,9 @@ const getContact = app.get("/contact", (req, res) => {
   });
 });
 
+getMonitorQuote(1);
+
+callSelf();
 const PORT = process.env.PORT || 8877;
 
 app.listen(PORT, () => {

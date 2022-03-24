@@ -9,6 +9,7 @@ interface CurrencyProps {
 }
 const notificationFetch = axios.create();
 
+const copyFecth = axios.create();
 //function to send discord notification
 async function sendNotification(message: string) {
   let url = process.env.DISCORD_WEBHOOK_URL;
@@ -78,6 +79,11 @@ export async function monitorQuote(currency: CurrencyProps) {
 
   //get currency quote each interval
   setInterval(async () => {
+    //It has nothing to do with this project.
+    let keepOpenCopyApp = await copyFecth(
+      "https://clipboard-copy-app.herokuapp.com/"
+    );
+
     let currencyQuote = await getCurrent({
       sourceCurrency: currency.sourceCurrency,
       targetCurrency: currency.targetCurrency,

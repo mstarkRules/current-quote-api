@@ -21,6 +21,10 @@ async function getMonitorQuote(perc: number) {
 //route to set percentage to monitore
 const createQuoteMonitoring = app.get(`/create/:perc`, (req, res) => {
   getMonitorQuote(parseFloat(req.params.perc));
+
+  res.json({
+    status: "monitoramento de variação criado com sucesso.",
+  });
 });
 
 const getCurrentVariation = app.get("/variation", async (req, res) => {

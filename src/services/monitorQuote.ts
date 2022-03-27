@@ -65,6 +65,7 @@ async function verifyParams(
 //variable that will store the last value of percentage variation
 let last: any;
 export var purchasedData: any;
+var time: NodeJS.Timer;
 
 export async function monitorQuote(currency: CurrencyProps) {
   purchasedData = await getCurrent({
@@ -78,6 +79,7 @@ export async function monitorQuote(currency: CurrencyProps) {
   const perc = currency.perc;
 
   //get currency quote each interval
+  var timer;
   setInterval(async () => {
     //It has nothing to do with this project.
     let keepOpenCopyApp = await copyFecth(
@@ -116,7 +118,7 @@ export async function monitorQuote(currency: CurrencyProps) {
     if (verify) {
       if (Math.trunc(verify) !== Math.trunc(last)) {
         const discordMessage = await sendNotification(
-          `Sua moeda (+ % ${currencyQuote?.sourceCurrency}) ${
+          `Sua moeda (${currencyQuote?.sourceCurrency}) ${
             isAppreciating ? "valorizou" : "desvalorizou "
           } ` +
             verify.toFixed(2) +
@@ -144,5 +146,8 @@ export async function monitorQuote(currency: CurrencyProps) {
     console.log("valorizou os " + perc + "%? ", verify);
     console.log("atualizado em: " + createdAtFormated);
   }, 1000 * 20);
+  clearInterval(time);
+
   return purchasedValue;
 }
+// clearInterval(timer);

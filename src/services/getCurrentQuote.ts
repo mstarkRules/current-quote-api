@@ -6,7 +6,7 @@ interface CurrencyProps {
 }
 
 export async function getCurrent(currency: CurrencyProps) {
-  let conc = currency.sourceCurrency + currency.targetCurrency;
+  let conc = currency.sourceCurrency;
 
   try {
     const { data } = await current.get(
